@@ -3,7 +3,7 @@ import torchaudio
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 
 def test_model(dataset, labels):
-    model_name = "facebook/mms-1b-all"
+    model_name = "./results"  # Chemin vers le modèle fine-tuné
     
     try:
         processor = Wav2Vec2Processor.from_pretrained(model_name)

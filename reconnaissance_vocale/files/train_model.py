@@ -11,7 +11,7 @@ def train_model(dataset, labels):
         return
     
     try:
-        model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=len(set(labels)))
+        model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=len(processor.tokenizer))
     except Exception as e:
         print(f"Erreur lors du chargement du modèle : {e}")
         return

@@ -1,15 +1,37 @@
-from datasets import load_dataset
-from transformers import Wav2Vec2Processor
-import librosa
+import json
+from pathlib import Path
+from datasets import Dataset, DatasetDict, Audio
 
-def load_and_prepare_dataset(json_path):
-    dataset = load_dataset("json", data_files=json_path, split="train")
-    processor = Wav2Vec2Processor.from_pretrained("facebook/mms-1b-all")
-    
-    def preprocess_function(examples):
-        audio, _ = librosa.load(examples["path"], sr=16000)
-        inputs = processor(audio, sampling_rate=16000, return_tensors="pt").input_values[0]
-        return {"input_values": inputs, "labels": processor.tokenizer(examples["sentence"]).input_ids}
-    
-    dataset = dataset.map(preprocess_function)
-    return dataset, processor
+def load_and_prepare_data(data_dir, json_file):
+    data_dir = Path(data_dir)
+    json_file = Path(json_file)
+
+    with json_file.open('r') as f:
+        data = json.load(f)
+
+    audio_files = [item['path'] for item in data]
+    labels = [item['sentence'] for item in data]
+
+    # Créer un dataset à partir des fichiers audio et des labels
+    dataset = Dataset.from_dict({
+        'audio': audio_files,
+        'sentence': labels
+    })
+
+    # Charger les fichiers audio
+    dataset = dataset.cast_column("audio", Audio(sampling_rate=16000))
+
+    # Diviser le dataset en train et test
+    train_test_split = dataset.train_test_split(test_size=0.2)
+    dataset = DatasetDict({
+        'train': train_test_split['train'],
+        'test': train_test_split['test']
+    })
+
+    return dataset, labels
+
+if __name__ == "__main__":
+    data_dir = "reconnaissance_vocale/files/data"
+    json_file = "data.json"
+    dataset, labels = load_and_prepare_data(data_dir, json_file)
+    print("Data loaded and prepared.")

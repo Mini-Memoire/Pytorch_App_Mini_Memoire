@@ -1,24 +1,53 @@
-from transformers import Wav2Vec2ForCTC, Trainer, TrainingArguments
+import torch
+from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor, Trainer, TrainingArguments
 
-def train_model(dataset, processor):
-    model = Wav2Vec2ForCTC.from_pretrained("facebook/mms-1b-all")
-    training_args = TrainingArguments(
-        output_dir="./mms-malagasy",
-        per_device_train_batch_size=4,
-        gradient_accumulation_steps=2,
-        evaluation_strategy="epoch",
-        save_strategy="epoch",
-        num_train_epochs=10,
-        fp16=True,
-        learning_rate=1e-4,
-        logging_dir="./logs"
-    )
+def train_model(dataset, labels):
+    model_name = "facebook/mms-1b-all"
     
+    try:
+        processor = Wav2Vec2Processor.from_pretrained(model_name)
+    except Exception as e:
+        print(f"Erreur lors du chargement du processeur : {e}")
+        return
+    
+    try:
+        model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=len(set(labels)))
+    except Exception as e:
+        print(f"Erreur lors du chargement du modèle : {e}")
+        return
+
+    def preprocess_function(examples):
+        audio = examples["audio"]
+        examples["input_values"] = processor(audio["array"], sampling_rate=audio["sampling_rate"]).input_values[0]
+        examples["labels"] = processor.tokenizer(examples["sentence"]).input_ids
+        return examples
+
+    dataset = dataset.map(preprocess_function, remove_columns=["audio"])
+
+    training_args = TrainingArguments(
+        output_dir="./results",
+        evaluation_strategy="epoch",
+        learning_rate=2e-5,
+        per_device_train_batch_size=16,
+        per_device_eval_batch_size=16,
+        num_train_epochs=3,
+        weight_decay=0.01,
+        save_total_limit=2,
+    )
+
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=dataset,
-        tokenizer=processor.tokenizer,
+        train_dataset=dataset["train"],
+        eval_dataset=dataset["test"],
+        tokenizer=processor.feature_extractor,
     )
+
     trainer.train()
-    return model
+
+if __name__ == "__main__":
+    from load_and_prepare_datasets import load_and_prepare_data
+    data_dir = "reconnaissance_vocale/files/data"
+    json_file = "data.json"
+    dataset, labels = load_and_prepare_data(data_dir, json_file)
+    train_model(dataset, labels)

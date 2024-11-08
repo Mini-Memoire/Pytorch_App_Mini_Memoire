@@ -13,13 +13,12 @@ def test_model(dataset, labels):
         return
     
     try:
-        print("Chargement du modèle...")
-        model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=len(set(labels)))
+        model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=len(processor.tokenizer))
         print("Modèle chargé avec succès.")
     except Exception as e:
         print(f"Erreur lors du chargement du modèle : {e}")
         return
-    
+
     def predict(audio_file):
         try:
             print(f"Chargement du fichier audio : {audio_file}")
@@ -46,7 +45,7 @@ def test_model(dataset, labels):
             print(f"Erreur lors de la prédiction : {e}")
             return None
 
-    test_audio_file = "reconnaissance_vocale/files/data/Tino_1_valiha.wav"
+    test_audio_file = "reconnaissance_vocale/files/data/Solo_1_bilo.wav"
     print(f"Test du fichier audio : {test_audio_file}")
     transcription = predict(test_audio_file)
     if transcription:

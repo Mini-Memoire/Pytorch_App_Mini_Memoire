@@ -6,12 +6,16 @@ def train_model(dataset, labels):
     
     try:
         processor = Wav2Vec2Processor.from_pretrained(model_name)
+        print("Processeur chargé avec succès.")
     except Exception as e:
         print(f"Erreur lors du chargement du processeur : {e}")
         return
     
     try:
-        model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=len(processor.tokenizer))
+        num_labels = len(processor.tokenizer)
+        print(f"Nombre de labels : {num_labels}")
+        model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=num_labels)
+        print("Modèle chargé avec succès.")
     except Exception as e:
         print(f"Erreur lors du chargement du modèle : {e}")
         return

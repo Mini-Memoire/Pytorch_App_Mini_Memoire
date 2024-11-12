@@ -13,6 +13,7 @@ def test_model(dataset, labels):
         return
     
     try:
+        print("Chargement du modèle...")
         model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=len(processor.tokenizer))
         print("Modèle chargé avec succès.")
     except Exception as e:

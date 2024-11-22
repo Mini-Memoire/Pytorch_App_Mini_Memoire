@@ -13,7 +13,6 @@ def test_model(dataset, labels):
         return
     
     try:
-        print("Chargement du modèle...")
         model = Wav2Vec2ForCTC.from_pretrained(model_name, num_labels=len(processor.tokenizer))
         print("Modèle chargé avec succès.")
     except Exception as e:
@@ -22,10 +21,8 @@ def test_model(dataset, labels):
 
     def predict(audio_file):
         try:
-            print(f"Chargement du fichier audio : {audio_file}")
             audio_input, sample_rate = torchaudio.load(audio_file)
             print(f"Fichier audio chargé avec succès. Sample rate: {sample_rate}")
-            print(f"Audio input shape: {audio_input.shape}")
 
             # Rééchantillonnage à 16000 Hz
             if sample_rate != 16000:
@@ -37,10 +34,8 @@ def test_model(dataset, labels):
             input_values = processor(audio_input.squeeze().numpy(), sampling_rate=sample_rate, return_tensors="pt").input_values
             print(f"Valeurs d'entrée préparées. Input values shape: {input_values.shape}")
             logits = model(input_values).logits
-            print("Logits calculés.")
             predicted_ids = torch.argmax(logits, dim=-1)
             transcription = processor.batch_decode(predicted_ids)
-            print(f"Transcription brute: {transcription}")
             return transcription
         except Exception as e:
             print(f"Erreur lors de la prédiction : {e}")
@@ -58,7 +53,6 @@ if __name__ == "__main__":
     from load_and_prepare_datasets import load_and_prepare_data
     data_dir = "reconnaissance_vocale/files/data"
     json_file = "data.json"
-    print("Chargement des données...")
     dataset, labels = load_and_prepare_data(data_dir, json_file)
     print("Données chargées.")
     test_model(dataset, labels)

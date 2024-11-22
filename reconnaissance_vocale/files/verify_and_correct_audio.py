@@ -10,17 +10,17 @@ def verify_and_correct_audio(audio_dir):
                 file_path = os.path.join(root, file)
                 waveform, sample_rate = torchaudio.load(file_path)
 
-                # Vérifier et corriger l'échantillonnage à 16 kHz
+                # Vérification et correction pour l'échantillonnage à 16 kHz
                 if sample_rate != 16000:
                     resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=16000)
                     waveform = resampler(waveform)
                     sample_rate = 16000
 
-                # Vérifier et corriger le nombre de canaux à mono
+                # Vérification et correction du nombre de canaux à mono
                 if waveform.shape[0] != 1:
                     waveform = waveform.mean(dim=0, keepdim=True)
 
-                # Sauvegarder le fichier corrigé
+                # Sauvegarde du fichier corrigé
                 torchaudio.save(file_path, waveform, sample_rate)
 
 def verify_label_input_length(dataset, processor):
@@ -37,20 +37,20 @@ def main():
     audio_dir = "reconnaissance_vocale/files/data"
     verify_and_correct_audio(audio_dir)
 
-    # Charger les fichiers audio et les labels depuis le répertoire local
+    # Chargement des fichiers audios et des labels
     audio_files = [os.path.join(audio_dir, f) for f in os.listdir(audio_dir) if f.endswith(".wav")]
-    labels = ["votre_label"] * len(audio_files)  # Remplacez par les labels réels si disponibles
+    labels = ["label"] * len(audio_files)
 
-    # Créer un dataset à partir des fichiers audio et des labels
+    # Création d'un dataset à partir des fichiers audio et des labels
     dataset = Dataset.from_dict({
         'audio': audio_files,
         'sentence': labels
     })
 
-    # Charger les fichiers audio
+    # Chargement des fichiers audios
     dataset = dataset.cast_column("audio", Audio(sampling_rate=16000))
 
-    # Diviser le dataset en train et test
+    # Division du dataset en train et test
     train_test_split = dataset.train_test_split(test_size=0.2)
     dataset = DatasetDict({
         'train': train_test_split['train'],

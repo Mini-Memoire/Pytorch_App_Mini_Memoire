@@ -12,16 +12,16 @@ def load_and_prepare_data(data_dir, json_file):
     audio_files = [item['path'] for item in data]
     labels = [item['sentence'] for item in data]
 
-    # Créer un dataset à partir des fichiers audio et des labels
+    # Création d'un dataset à partir des fichiers audio et des labels
     dataset = Dataset.from_dict({
         'audio': audio_files,
         'sentence': labels
     })
 
-    # Charger les fichiers audio
+    # Chargement des fichiers audio
     dataset = dataset.cast_column("audio", Audio(sampling_rate=16000))
 
-    # Diviser le dataset en train et test
+    # Division du dataset en train et test
     train_test_split = dataset.train_test_split(test_size=0.2)
     dataset = DatasetDict({
         'train': train_test_split['train'],
@@ -34,4 +34,4 @@ if __name__ == "__main__":
     data_dir = "reconnaissance_vocale/files/data"
     json_file = "data.json"
     dataset, labels = load_and_prepare_data(data_dir, json_file)
-    print("Data loaded and prepared.")
+    print("Données chargées et préparées.")

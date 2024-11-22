@@ -3,6 +3,7 @@ import wave
 import numpy as np
 import torch
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
+from liste_vocab import liste_vocab
 
 print("Importations réussies")
 
@@ -61,3 +62,15 @@ predicted_ids = torch.argmax(logits, dim=-1)
 transcription = processor.decode(predicted_ids[0])
 
 print("Transcription : ", transcription)
+
+
+mot_trouve = None
+for mot in liste_vocab:
+    if mot in transcription:
+        mot_trouve = mot
+        break
+
+if mot_trouve:
+    print(f"Le mot '{mot_trouve}' existe bel et bien dans la liste des vocabulaires Malgache.")
+else:
+    print("Aucun mot de la liste n'a été trouvé dans la transcription.")

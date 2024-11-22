@@ -1,0 +1,21 @@
+liste_vocab = [
+    'vintana', 
+    'valiha', 
+    'famadihana', 
+    'moraingy', 
+    'ziva', 
+    'bilo', 
+    'ravinala', 
+    'aroloka', 
+    'kabary', 
+    'fihavanana', 
+    'hainteny',  
+    'hasina', 
+    'lambahoany', 
+    'mpanandro', 
+    'tromba', 
+    'tsodrano', 
+    'tsofina_rano', 
+    'vodiondry', 
+    'sambatra'
+    ]
